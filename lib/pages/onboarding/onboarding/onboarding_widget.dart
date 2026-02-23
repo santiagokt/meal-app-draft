@@ -189,44 +189,73 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
                                                   0.0, 18.0, 0.0, 0.0),
                                           child: Builder(
                                             builder: (context) {
-                                              final diet =
+                                              final dietOptions =
                                                   onboardingOnboardingOptionsRecord
                                                           ?.dietOptions
                                                           ?.toList() ??
                                                       [];
 
-                                              return Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: List.generate(
-                                                    diet.length, (dietIndex) {
-                                                  final dietItem =
-                                                      diet[dietIndex];
-                                                  return DietItemWidget(
-                                                    key: Key(
-                                                        'Keybqj_${dietIndex}_of_${diet.length}'),
-                                                    dietType: dietItem.dietName,
-                                                    selectedDiet:
-                                                        _model.dietSelection!,
-                                                    dietTagline:
-                                                        dietItem.dietTagline,
-                                                    action: () async {
-                                                      logFirebaseEvent(
-                                                          'ONBOARDING_Container_bqjxf8do_CALLBACK');
-                                                      logFirebaseEvent(
-                                                          'dietItem_haptic_feedback');
-                                                      HapticFeedback
-                                                          .selectionClick();
-                                                      logFirebaseEvent(
-                                                          'dietItem_update_page_state');
-                                                      _model.dietSelection =
-                                                          dietItem.dietName;
-                                                      safeSetState(() {});
-                                                    },
-                                                  );
-                                                }).divide(
-                                                    SizedBox(height: 8.0)),
+                                              return DropdownButtonFormField<
+                                                  String>(
+                                                value: _model.dietSelection !=
+                                                            '' &&
+                                                        dietOptions.any((d) =>
+                                                            d.dietName ==
+                                                            _model
+                                                                .dietSelection)
+                                                    ? _model.dietSelection
+                                                    : null,
+                                                items: dietOptions
+                                                    .map((e) =>
+                                                        DropdownMenuItem<
+                                                            String>(
+                                                          value: e.dietName,
+                                                          child: Text(
+                                                              e.dietName,
+                                                              style: FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium),
+                                                        ))
+                                                    .toList(),
+                                                onChanged: (val) {
+                                                  logFirebaseEvent(
+                                                      'ONBOARDING_DropDown_diet_ON_FORM_WIDGET_SELECTED');
+                                                  _model.dietSelection = val;
+                                                  safeSetState(() {});
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: 'Select a diet...',
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .alternate,
+                                                      width: 1.0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primary,
+                                                      width: 1.0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                  ),
+                                                  filled: true,
+                                                  fillColor: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryBackground,
+                                                ),
                                               );
                                             },
                                           ),
@@ -364,7 +393,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
                                               EdgeInsetsDirectional.fromSTEB(
                                                   0.0, 24.0, 0.0, 0.0),
                                           child: Text(
-                                            'How about dislikes?',
+                                            'Ingredients you dislike',
                                             style: FlutterFlowTheme.of(context)
                                                 .displaySmall
                                                 .override(
@@ -407,7 +436,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
                                                 builder: (context) {
                                                   final dislikes =
                                                       onboardingOnboardingOptionsRecord
-                                                              ?.ingredientOptions
+                                                              ?.ingredientDislikes
                                                               ?.toList() ??
                                                           [];
 
@@ -429,17 +458,16 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
                                                         dislikes.length,
                                                         (dislikesIndex) {
                                                       final dislikesItem =
-                                                          dislikes[
-                                                              dislikesIndex];
+                                                          dislikes[dislikesIndex];
                                                       return PreferenceItemWidget(
                                                         key: Key(
-                                                            'Keygtj_${dislikesIndex}_of_${dislikes.length}'),
+                                                            'Keybqj_${dislikesIndex}_of_${dislikes.length}'),
                                                         text: dislikesItem,
                                                         selectedItems: _model
                                                             .ingredientSelection,
                                                         action: () async {
                                                           logFirebaseEvent(
-                                                              'ONBOARDING_Container_gtj3fvgd_CALLBACK');
+                                                              'ONBOARDING_Container_bqjxf8do_CALLBACK');
                                                           if (_model
                                                               .ingredientSelection
                                                               .contains(
@@ -493,7 +521,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
                         logFirebaseEvent('Button_haptic_feedback');
                         HapticFeedback.lightImpact();
                         logFirebaseEvent('Button_update_app_state');
-                        FFAppState().userDiet = _model.dietSelection!;
+                        FFAppState().userDiet = _model.dietSelection ?? '';
                         FFAppState().userAllergens =
                             _model.allergenSelection.toList().cast<String>();
                         FFAppState().userIngredientDislikes =
